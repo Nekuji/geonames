@@ -16,17 +16,52 @@ The script has two different operation modes
 - Downloading the Geonames data dumps
 - Importing the data into a MySQL database
 
-## Use
+## Usage
 
-First, clone the project:
-
+The script can perform the following options:
 ```shell
-git clone https://github.com/erlem/geonames.git
+./geonames.sh [option] [argument] ...
 ```
 
-Go in the project geonames:
+| Option | Description                                                                     |
+|:------:|---------------------------------------------------------------------------------|
+| -a     | Executes an action with the provided argument. Check the action arguments below |
+| -u     | Connects to MySQL with the provided user for login                              |
+| -p     | Connects to MySQL with the provided password for login                          |
+| -h     | Connects to MySQL with the provided hostname                                    |
+| -r     | Connects to MySQL with the provided port                                        |
+| -n     | Connects to MySQL with the provided database                                    |
+
+Those are the actions available:
+
+| Action          | Description                                                                                        |
+|-----------------|----------------------------------------------------------------------------------------------------|
+| all             | Performs the following actions respectively: download-data, db-create, tables-create and db-import |
+| db-create       | Drop the geonames database and create a new one                                                    |
+| db-drop         | Drop the geonames database                                                                         |
+| db-import       | Import GeoNames data dumps into the current database                                               |
+| db-truncate     | Truncate all GeoNames tables from the current database                                             |
+| download-data   | Download the GeoNames data dumps                                                                   |
+| download-delete | Delete the folders with the GeoNames data dump                                                     |
+| tables-create   | Create the GeoNames tables                                                                         |
+
+When no options to connect to MySQL are specified, it will use the default settings:
+```shell
+./geonames.sh -u root -p root -h localhost -r 3306 -n geonames
+```
+
+You can visit anytime the help section to know all the commands and actions available:
 
 ```shell
+./geonames.sh --help
+```
+
+## Install and Run
+
+First, clone the project and go in the geonames folder:
+
+```shell
+git clone ...
 cd geonames
 ```
 
@@ -36,7 +71,7 @@ Another recommend option is to set an executable permission using the chmod comm
 chmod +x geonames.sh
 ```
 
-Finally launch:
+Finally launch (this will import the GeoNames data dump into your local database):
 
 ```shell
 ./geonames.sh -a all

@@ -39,7 +39,9 @@ CREATE TABLE `alternatename` (
   PRIMARY KEY (`alternatenameId`),
   KEY `geonameid` (`geonameid`),
   KEY `isoLanguage` (`isoLanguage`),
-  KEY `alternateName` (`alternateName`)
+  KEY `alternateName` (`alternateName`),
+  KEY `idx_geoname_alternatename_alternateName` (`alternateName`) USING BTREE,
+  KEY `index_3` (`geonameid`,`isoLanguage`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_unicode_ci;
 
 -- Create syntax for TABLE 'continentCodes'
@@ -122,7 +124,11 @@ CREATE TABLE `geoname` (
   KEY `admin1` (`admin1`),
   KEY `population` (`population`),
   KEY `elevation` (`elevation`),
-  KEY `timezone` (`timezone`)
+  KEY `timezone` (`timezone`),
+  KEY `asciiname_fclass` (`fclass`,`asciiname`),
+  KEY `alternatenames_fcass` (`alternatenames`(255),`fclass`),
+  FULLTEXT KEY `idx_fulltext_alternatename` (`alternatenames`),
+  FULLTEXT KEY `idx_fulltext_asciiname` (`asciiname`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_unicode_ci;
 
 -- Create syntax for TABLE 'hierarchy'
