@@ -1,12 +1,12 @@
--- LOAD DATA LOCAL INFILE 'dump/allCountries.txt'
--- INTO TABLE geoname
--- CHARACTER SET 'UTF8'
--- (geonameid, name, asciiname, alternatenames, latitude, longitude, fclass, fcode, country, cc2, admin1, admin2, admin3, admin4, population, elevation, gtopo30, timezone, moddate);
+LOAD DATA LOCAL INFILE 'dump/allCountries.txt'
+INTO TABLE geoname
+CHARACTER SET 'UTF8'
+(geonameid, name, asciiname, alternatenames, latitude, longitude, fclass, fcode, country, cc2, admin1, admin2, admin3, admin4, population, elevation, gtopo30, timezone, moddate);
 
--- LOAD DATA LOCAL INFILE 'dump/alternateNames.txt'
--- INTO TABLE alternatename
--- CHARACTER SET 'UTF8'
--- (alternatenameid, geonameid, isoLanguage, alternateName, isPreferredName, isShortName, isColloquial, isHistoric);
+LOAD DATA LOCAL INFILE 'dump/alternateNames.txt'
+INTO TABLE alternatename
+CHARACTER SET 'UTF8'
+(alternatenameid, geonameid, isoLanguage, alternateName, isPreferredName, isShortName, isColloquial, isHistoric);
 
 LOAD DATA LOCAL INFILE 'dump/iso-languagecodes.txt'
 INTO TABLE iso_languagecodes

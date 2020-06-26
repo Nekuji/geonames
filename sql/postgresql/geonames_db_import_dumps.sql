@@ -1,10 +1,10 @@
--- COPY :geonames_schema.geoname
--- (geonameid, name, asciiname, alternatenames, latitude, longitude, fclass, fcode, country, cc2, admin1, admin2, admin3, admin4, population, elevation, gtopo30, timezone, moddate)
--- FROM ':geonames_path/dump/allCountries.txt';
+COPY :geonames_schema.geoname
+(geonameid, name, asciiname, alternatenames, latitude, longitude, fclass, fcode, country, cc2, admin1, admin2, admin3, admin4, population, elevation, gtopo30, timezone, moddate)
+FROM ':geonames_path/dump/allCountries.txt';
 
--- COPY :geonames_schema.alternatename
--- (alternatenameid, geonameid, isoLanguage, alternateName, isPreferredName, isShortName, isColloquial, isHistoric)
--- FROM ':geonames_path/dump/alternateNames.txt';
+COPY :geonames_schema.alternatename
+(alternatenameid, geonameid, isoLanguage, alternateName, isPreferredName, isShortName, isColloquial, isHistoric)
+FROM ':geonames_path/dump/alternateNames.txt';
 
 COPY :geonames_schema.iso_languagecodes
 (iso_639_3, iso_639_2, iso_639_1, language_name)

@@ -46,9 +46,8 @@ download_geonames_data() {
 		mkdir -p $ZIP_DIR
 	fi
 
-	# dumps="admin1CodesASCII.txt admin2Codes.txt allCountries.zip alternateNamesV2.zip countryInfo.txt featureCodes_en.txt hierarchy.zip iso-languagecodes.txt timeZones.txt"
-	dumps="countryInfo.txt iso-languagecodes.txt timeZones.txt"
-	dump_postal_codes=""
+	dumps="admin1CodesASCII.txt admin2Codes.txt allCountries.zip alternateNamesV2.zip countryInfo.txt featureCodes_en.txt hierarchy.zip iso-languagecodes.txt timeZones.txt"
+	dump_postal_codes="allCountries.zip"
 
 	# Folder DMP_DIR
 	for dump in $dumps; do
