@@ -2,7 +2,7 @@ TRUNCATE TABLE geoname;
 TRUNCATE TABLE alternatename;
 TRUNCATE TABLE countryinfo;
 TRUNCATE TABLE iso_languagecodes;
-TRUNCATE TABLE admin1CodesAscii;
+TRUNCATE TABLE admin1Codes;
 TRUNCATE TABLE admin2Codes;
 TRUNCATE TABLE hierarchy;
 TRUNCATE TABLE featureCodes;

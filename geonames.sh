@@ -1,16 +1,18 @@
 #!/bin/bash
 #
 # The result is a Linux shell script that allows you to download the GeoNames data dumps from
-# the official site and create a MySQL database structure in which you can import that dumps.
+# the official site and create a database structure in which you can import that dumps.
 #
 # The script has two different operation modes
 #   Downloading the Geonames data dumps
-#   Importing the data into a MySQL database
+#   Importing the data into a database (it can be in MySQL or PostgreSQL)
 
 # Default values for database variables.
+DB_MANAGEMENT_SYS="mysql"
 DB_HOST="localhost"
 DB_PORT=3306
 DB_NAME="geonames"
+DB_SCHEMA="geonames"
 DB_USERNAME="root"
 DB_PASSWORD="root"
 
@@ -44,8 +46,9 @@ download_geonames_data() {
 		mkdir -p $ZIP_DIR
 	fi
 
-	dumps="admin1CodesASCII.txt admin2Codes.txt allCountries.zip alternateNamesV2.zip countryInfo.txt featureCodes_en.txt hierarchy.zip iso-languagecodes.txt timeZones.txt"
-	dump_postal_codes="allCountries.zip"
+	# dumps="admin1CodesASCII.txt admin2Codes.txt allCountries.zip alternateNamesV2.zip countryInfo.txt featureCodes_en.txt hierarchy.zip iso-languagecodes.txt timeZones.txt"
+	dumps="countryInfo.txt iso-languagecodes.txt timeZones.txt"
+	dump_postal_codes=""
 
 	# Folder DMP_DIR
 	for dump in $dumps; do
@@ -57,6 +60,19 @@ download_geonames_data() {
 			echo "Deleting [$dump] in [$DMP_DIR]"
 			rm "$DMP_DIR/$dump"
 		fi
+		
+		# Skip the header or the comments. It will generate a temp file and then overwrite the original with a clean content.
+		case $dump in
+		iso-languagecodes.txt)
+			tail -n +2 "$DMP_DIR/$dump" > "$DMP_DIR/$dump.tmp" && mv "$DMP_DIR/$dump.tmp" "$DMP_DIR/$dump";
+			;;
+		countryInfo.txt)
+			grep -v '^#' "$DMP_DIR/$dump" | head -n -2 > "$DMP_DIR/$dump.tmp" && mv "$DMP_DIR/$dump.tmp" "$DMP_DIR/$dump";
+			;;
+		timeZones.txt)
+			tail -n +2 "$DMP_DIR/$dump" > "$DMP_DIR/$dump.tmp" && mv "$DMP_DIR/$dump.tmp" "$DMP_DIR/$dump";
+			;;
+		esac
 	done
 
 	# Folder ZIP_DIR
@@ -95,16 +111,23 @@ download_geonames_data_delete() {
 #   DB_PORT
 #   DB_USERNAME
 #   DB_PASSWORD
+#	DB_NAME
+#	DB_SCHEMA
 # Arguments:
 #   None
 # Returns:
 #   None
 #######################################
-mysql_db_create() {
-	echo "Creating database [$DB_NAME]..."
-	mysql -h $DB_HOST -P $DB_PORT -u $DB_USERNAME -p$DB_PASSWORD -Bse "DROP DATABASE IF EXISTS $DB_NAME;"
-	mysql -h $DB_HOST -P $DB_PORT -u $DB_USERNAME -p$DB_PASSWORD -Bse "CREATE DATABASE $DB_NAME DEFAULT CHARACTER SET utf8;"
-	mysql -h $DB_HOST -P $DB_PORT -u $DB_USERNAME -p$DB_PASSWORD -Bse "USE $DB_NAME;"
+db_create() {
+	echo "Creating database [$DB_NAME] in [$DB_MANAGEMENT_SYS]..."
+	if [[ "$DB_MANAGEMENT_SYS" == "mysql" ]]; then
+		mysql -h $DB_HOST -P $DB_PORT -u$DB_USERNAME -p$DB_PASSWORD -Bse "DROP DATABASE IF EXISTS $DB_NAME;"
+		mysql -h $DB_HOST -P $DB_PORT -u$DB_USERNAME -p$DB_PASSWORD -Bse "CREATE DATABASE $DB_NAME DEFAULT CHARACTER SET utf8;"
+		mysql -h $DB_HOST -P $DB_PORT -u$DB_USERNAME -p$DB_PASSWORD -Bse "USE $DB_NAME;"
+	else
+		psql -h $DB_HOST -p $DB_PORT -U $DB_USERNAME -d $DB_NAME -c "DROP SCHEMA IF EXISTS $DB_SCHEMA CASCADE;"
+		psql -h $DB_HOST -p $DB_PORT -U $DB_USERNAME -d $DB_NAME -c "CREATE SCHEMA $DB_SCHEMA;"
+	fi
 }
 
 #######################################
@@ -120,10 +143,14 @@ mysql_db_create() {
 # Returns:
 #   None
 #######################################
-mysql_db_tables_create() {
-	echo "Creating tables for database [$DB_NAME]..."
-	mysql -h $DB_HOST -P $DB_PORT -u $DB_USERNAME -p$DB_PASSWORD -Bse "USE $DB_NAME;"
-	mysql -h $DB_HOST -P $DB_PORT -u $DB_USERNAME -p$DB_PASSWORD $DB_NAME <$SQL_DIR/geonames_mysql_db_tables_create.sql
+db_tables_create() {
+	echo "Creating tables for database [$DB_NAME] in [$DB_MANAGEMENT_SYS]..."
+	if [[ "$DB_MANAGEMENT_SYS" == "mysql" ]]; then
+		mysql -h $DB_HOST -P $DB_PORT -u$DB_USERNAME -p$DB_PASSWORD -Bse "USE $DB_NAME;"
+		mysql -h $DB_HOST -P $DB_PORT -u$DB_USERNAME -p$DB_PASSWORD $DB_NAME <$SQL_DIR/$DB_MANAGEMENT_SYS/geonames_db_tables_create.sql
+	else
+		psql -h $DB_HOST -p $DB_PORT -U $DB_USERNAME -d $DB_NAME -v geonames_schema=$DB_SCHEMA -f $SQL_DIR/$DB_MANAGEMENT_SYS/geonames_db_tables_create.sql
+	fi
 }
 
 #######################################
@@ -139,9 +166,20 @@ mysql_db_tables_create() {
 # Returns:
 #   None
 #######################################
-mysql_db_import_dumps() {
-	echo "Importing GeoNames dumps into database [$DB_NAME]. Please wait a moment..."
-	mysql -h $DB_HOST -P $DB_PORT -u $DB_USERNAME -p$DB_PASSWORD --local-infile=1 $DB_NAME <$SQL_DIR/geonames_mysql_db_import_dumps.sql
+db_import_dumps() {
+	echo "Importing GeoNames dumps into database [$DB_NAME] in [$DB_MANAGEMENT_SYS]. Please wait a moment..."
+	FILEPATH=$SQL_DIR/$DB_MANAGEMENT_SYS/geonames_db_import_dumps.sql
+	if [[ "$DB_MANAGEMENT_SYS" == "mysql" ]]; then
+		mysql -h $DB_HOST -P $DB_PORT -u$DB_USERNAME -p$DB_PASSWORD --local-infile=1 $DB_NAME <$FILEPATH
+	else
+		COPYFILE="$SQL_DIR/$DB_MANAGEMENT_SYS/import_geonames.sql"
+		cp $FILEPATH $COPYFILE
+		SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+		echo $SCRIPTPATH
+		sed -i "s~:geonames_path~$SCRIPTPATH~g" $COPYFILE
+		psql -h $DB_HOST -p $DB_PORT -U $DB_USERNAME -d $DB_NAME -v geonames_schema=$DB_SCHEMA -v geonames_path=$SCRIPTPATH -f "$COPYFILE"
+		rm $COPYFILE
+	fi
 }
 
 #######################################
@@ -156,9 +194,13 @@ mysql_db_import_dumps() {
 # Returns:
 #   None
 #######################################
-mysql_db_drop() {
-	echo "Dropping [$DB_NAME] database"
-	mysql -h $DB_HOST -P $DB_PORT -u $DB_USERNAME -p$DB_PASSWORD -Bse "DROP DATABASE IF EXISTS $DB_NAME;"
+db_drop() {
+	echo "Dropping [$DB_NAME] database in [$DB_MANAGEMENT_SYS]..."
+	if [[ "$DB_MANAGEMENT_SYS" == "mysql" ]]; then
+		mysql -h $DB_HOST -P $DB_PORT -u$DB_USERNAME -p$DB_PASSWORD -Bse "DROP DATABASE IF EXISTS $DB_NAME;"
+	else
+		psql -h $DB_HOST -p $DB_PORT -U $DB_USERNAME -d $DB_NAME -c "DROP SCHEMA IF EXISTS $DB_SCHEMA CASCADE;"
+	fi
 }
 
 #######################################
@@ -174,26 +216,32 @@ mysql_db_drop() {
 # Returns:
 #   None
 #######################################
-mysql_db_truncate() {
-	echo "Truncating [$DB_NAME] database"
-	mysql -h $DB_HOST -P $DB_PORT -u $DB_USERNAME -p$DB_PASSWORD $DB_NAME <$SQL_DIR/geonames_mysql_db_truncate.sql
+db_truncate() {
+	echo "Truncating [$DB_NAME] database in [$DB_MANAGEMENT_SYS]..."
+	if [[ "$DB_MANAGEMENT_SYS" == "mysql" ]]; then
+		mysql -h $DB_HOST -P $DB_PORT -u$DB_USERNAME -p$DB_PASSWORD $DB_NAME <$SQL_DIR/$DB_MANAGEMENT_SYS/geonames_db_truncate.sql
+	else
+		psql -h $DB_HOST -p $DB_PORT -U $DB_USERNAME -d $DB_NAME -v geonames_schema=$DB_SCHEMA -f $SQL_DIR/$DB_MANAGEMENT_SYS/geonames_db_truncate.sql
+	fi
 }
 
 #######################################
 # The command line help
 #######################################
 display_help() {
-	filename=`basename "$0"`
+	filename=$(basename "$0")
 	echo
-	echo "This Linux shell script allows you to download the GeoNames data dumps from the official site and create a MySQL database structure in which you can import that dumps."
+	echo "This Linux shell script allows you to download the GeoNames data dumps from the official site and create a database structure in which you can import that dumps."
 	echo
 	echo "Usage: ./$filename [option] [argument] ..."
 	echo "  -a                 : executes an action with the provided argument. Check the action arguments below."
-	echo "  -u                 : mysql user for login."
-	echo "  -p                 : mysql password for login."
-	echo "  -h                 : mysql hostname."
-	echo "  -r                 : mysql port."
-	echo "  -n                 : mysql database name."
+	echo "  -m                 : set the database management system. Only the MySQL and PostgreSQL are available."
+	echo "  -u                 : database user for login."
+	echo "                  : database password for login."
+	echo "  -h                 : database hostname."
+	echo "  -p                 : database port."
+	echo "  -d                 : database name."
+	echo "  -s                 : database schema (for PostgreSQL)."
 	echo
 	echo "Action arguments:"
 	echo "  all                : Performs the following actions respectively:"
@@ -206,49 +254,93 @@ display_help() {
 	echo "  download-delete    : Delete the folders with the GeoNames data dump"
 	echo "  tables-create      : Create the GeoNames tables"
 	echo
-	echo "If no option is provided to connect to mysql, it will use the default values for database variables:"
+	echo "If no option is provided to connect, it will use the MySQL database and its default values:"
 	echo "  Host     : localhost"
 	echo "  Port     : 3306"
 	echo "  Database : geonames"
 	echo "  User     : root"
 	echo "  Passowrd : root"
 	echo
-	echo "Example of usage:"
+	echo "Example of usage for MySQL:"
 	echo
-	echo "  $ ./$filename -a all -u root -p root -h localhost -r 3306 -n geonames"
+	echo "  $ ./$filename -a all -m mysql -u root -w root -h localhost -p 3306 -d geonames"
+	echo
+	echo "Example of usage for PostgreSQL (needs to provide the schema):"
+	echo
+	echo "  $ ./$filename -a all -m postgresql -u root -h localhost -p 3306 -d postgres -s geonames"
 	echo
 }
 
 # Deals with operation mode 2 (Database issues...)
 # Parses command line parameters.
-if [ "$1" == "--help" ]; then
-	display_help
-	exit 0
-else
-	while getopts "a:u:p:h:r:n:" opt; do
-		case $opt in
-		a) action=$OPTARG ;;
-		u) dbusername=$OPTARG ;;
-		p) dbpassword=$OPTARG ;;
-		h) dbhost=$OPTARG ;;
-		r) dbport=$OPTARG ;;
-		n) dbname=$OPTARG ;;
-		*)
-			echo "Invalid option"
+while (($#)); do
+	case $1 in
+	-a | --action)
+		action=$2
+		shift
+		;;
+	-m | --management)
+		declare -l $2
+		if [[ $2 != "mysql" && $2 != "postgresql" ]]; then
+			echo "Invalid database management system: $2"
 			echo "Check the --help section to see the valid command line options"
 			exit 1
-			;;
-		esac
-	done
-fi
+		fi
+		DB_MANAGEMENT_SYS=$2
+		echo "Set \"$DB_MANAGEMENT_SYS\" as the database management system."
+		shift
+		;;
+	-u | --username)
+		DB_USERNAME=$2
+		shift
+		;;
+	-w | --password)
+		DB_PASSWORD=$2
+		shift
+		;;
+	-h | --host)
+		DB_HOST=$2
+		shift
+		;;
+	-p | --port)
+		DB_PORT=$2
+		shift
+		;;
+	-d | --database)
+		DB_NAME=$2
+		shift
+		;;
+	-s | --schema)
+		DB_SCHEMA=$2
+		shift
+		;;
+	-\? | --help)
+		display_help
+		exit 0
+		;;
+	--) # End of all options.
+		shift
+		break
+		;;
+	-?*)
+		echo "WARN: Unknown option (ignored): $1"
+		;;
+	*)
+		echo "Invalid option"
+		echo "Check the --help section to see the valid command line options"
+		exit 1
+		;;
+	esac
+	shift
+done
 
 case "$action" in
 db-create)
-	mysql_db_create
+	db_create
 	;;
 
 tables-create)
-	mysql_db_tables_create
+	db_tables_create
 	;;
 
 download-data)
@@ -260,22 +352,22 @@ download-delete)
 	;;
 
 db-import)
-	mysql_db_import_dumps
+	db_import_dumps
 	;;
 
 db-drop)
-	mysql_db_drop
+	db_drop
 	;;
 
 db-truncate)
-	mysql_db_truncate
+	db_truncate
 	;;
 
 all)
 	download_geonames_data
-	mysql_db_create
-	mysql_db_tables_create
-	mysql_db_import_dumps
+	db_create
+	db_tables_create
+	db_import_dumps
 	;;
 
 *)

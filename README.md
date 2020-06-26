@@ -4,17 +4,17 @@
 
 ## Database and web services
 
-The GeoNames database contains over 10,000,000 geographical names corresponding to over 7,500,000 unique features. All features are categorized into one out of nine feature classes and further subcategorized into one out of 645 feature codes. Beyond names of places in various languages, data stored include latitude, longitude, elevation, population, administrative subdivision and postal codes. All coordinates use the World Geodetic System 1984 (WGS84).
+The GeoNames database contains over 12,000,000 geographical names corresponding to over 7,500,000 unique features. All features are categorized into one out of nine feature classes and further subcategorized into one out of 645 feature codes. Beyond names of places in various languages, data stored include latitude, longitude, elevation, population, administrative subdivision and postal codes. All coordinates use the World Geodetic System 1984 (WGS84).
 
 Those data are accessible free of charge through a number of Web services and a daily database export. The Web services include direct and reverse geocoding, finding places through postal codes, finding places next to a given place, and finding Wikipedia articles about neighbouring places.
 
 ## The project
 
-The result is a Linux shell script that allows you to download the GeoNames data dumps from  the official site and create a MySQL database structure in which you can import that dumps. 
+The result is a Linux shell script that allows you to download the GeoNames data dumps from  the official site and create a database structure in which you can import that dumps. 
 
 The script has two different operation modes 
 - Downloading the Geonames data dumps
-- Importing the data into a MySQL database
+- Importing the data into a database management system (MySQL or PostgreSQL)
 
 ## Usage
 
@@ -23,14 +23,16 @@ The script can perform the following options:
 ./geonames.sh [option] [argument] ...
 ```
 
-| Option | Description                                                                     |
-|:------:|---------------------------------------------------------------------------------|
-| -a     | Executes an action with the provided argument. Check the action arguments below |
-| -u     | Connects to MySQL with the provided user for login                              |
-| -p     | Connects to MySQL with the provided password for login                          |
-| -h     | Connects to MySQL with the provided hostname                                    |
-| -r     | Connects to MySQL with the provided port                                        |
-| -n     | Connects to MySQL with the provided database                                    |
+| Option | Description                                                                        |
+|:------:|------------------------------------------------------------------------------------|
+| -a     | Executes an action with the provided argument. Check the action arguments below    |
+| -m     | Set the database management system. It can be either "mysql" or "postgresql"       |
+| -u     | Connects to the database management system with the provided user for login        |
+| -w     | Connects to the database management system with the provided password for login    |
+| -h     | Connects to the database management system with the provided hostname              |
+| -p     | Connects to the database management system with the provided port                  |
+| -d     | Connects to the database management system with the provided database              |
+| -s     | Connects to the database management system with the provided schema for PostgreSQL |
 
 Those are the actions available:
 
@@ -47,7 +49,12 @@ Those are the actions available:
 
 When no options to connect to MySQL are specified, it will use the default settings:
 ```shell
-./geonames.sh -u root -p root -h localhost -r 3306 -n geonames
+./geonames.sh -a all -m mysql -u root -w root -h localhost -p 3306 -d geonames
+```
+
+To execute with PostgreSQL, just change the value in -m option and provide the database and schema:
+```shell
+./geonames.sh -a all -m postgresql -u root -w root -h localhost -p 3306 -d postgres -s geonames
 ```
 
 You can visit anytime the help section to know all the commands and actions available:

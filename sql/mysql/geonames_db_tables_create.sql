@@ -2,8 +2,8 @@
 -- CREATE DATABASE geonames DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 -- USE geonames;
 
--- Create syntax for TABLE 'admin1CodesAscii'
-CREATE TABLE `admin1CodesAscii` (
+-- Create syntax for TABLE 'admin1Codes'
+CREATE TABLE `admin1Codes` (
   `code` char(15) DEFAULT NULL,
   `name` text,
   `nameAscii` text,
@@ -68,12 +68,12 @@ CREATE TABLE `countryinfo` (
   `tld` char(3) DEFAULT NULL,
   `currency` char(3) DEFAULT NULL,
   `currencyName` char(20) DEFAULT NULL,
-  `Phone` char(10) DEFAULT NULL,
+  `phone` char(20) DEFAULT NULL,
   `postalCodeFormat` varchar(100) DEFAULT NULL,
   `postalCodeRegex` varchar(255) DEFAULT NULL,
-  `geonameId` int(11) DEFAULT NULL,
+  `geonameid` int(11) DEFAULT NULL,
   `languages` varchar(200) DEFAULT NULL,
-  `neighbours` char(100) DEFAULT NULL,
+  `neighbors` char(100) DEFAULT NULL,
   `equivalentFipsCode` char(10) DEFAULT NULL,
   KEY `iso_alpha2` (`iso_alpha2`),
   KEY `iso_alpha3` (`iso_alpha3`),
@@ -126,7 +126,7 @@ CREATE TABLE `geoname` (
   KEY `elevation` (`elevation`),
   KEY `timezone` (`timezone`),
   KEY `asciiname_fclass` (`fclass`,`asciiname`),
-  KEY `alternatenames_fcass` (`alternatenames`(255),`fclass`),
+  KEY `alternatenames_fclass` (`alternatenames`(255),`fclass`),
   FULLTEXT KEY `idx_fulltext_alternatename` (`alternatenames`),
   FULLTEXT KEY `idx_fulltext_asciiname` (`asciiname`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_unicode_ci;

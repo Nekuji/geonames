@@ -1,21 +1,20 @@
-LOAD DATA LOCAL INFILE 'dump/allCountries.txt'
-INTO TABLE geoname
-CHARACTER SET 'UTF8'
-(geonameid, name, asciiname, alternatenames, latitude, longitude, fclass, fcode, country, cc2, admin1, admin2, admin3, admin4, population, elevation, gtopo30, timezone, moddate);
+-- LOAD DATA LOCAL INFILE 'dump/allCountries.txt'
+-- INTO TABLE geoname
+-- CHARACTER SET 'UTF8'
+-- (geonameid, name, asciiname, alternatenames, latitude, longitude, fclass, fcode, country, cc2, admin1, admin2, admin3, admin4, population, elevation, gtopo30, timezone, moddate);
 
-LOAD DATA LOCAL INFILE 'dump/alternateNames.txt'
-INTO TABLE alternatename
-CHARACTER SET 'UTF8'
-(alternatenameid, geonameid, isoLanguage, alternateName, isPreferredName, isShortName, isColloquial, isHistoric);
+-- LOAD DATA LOCAL INFILE 'dump/alternateNames.txt'
+-- INTO TABLE alternatename
+-- CHARACTER SET 'UTF8'
+-- (alternatenameid, geonameid, isoLanguage, alternateName, isPreferredName, isShortName, isColloquial, isHistoric);
 
 LOAD DATA LOCAL INFILE 'dump/iso-languagecodes.txt'
 INTO TABLE iso_languagecodes
 CHARACTER SET 'UTF8'
-IGNORE 1 LINES
 (iso_639_3, iso_639_2, iso_639_1, language_name);
 
 LOAD DATA LOCAL INFILE 'dump/admin1CodesASCII.txt'
-INTO TABLE admin1CodesAscii
+INTO TABLE admin1Codes
 CHARACTER SET 'UTF8'
 (code, name, nameAscii, geonameid);
 
@@ -37,14 +36,12 @@ CHARACTER SET 'UTF8'
 LOAD DATA LOCAL INFILE 'dump/timeZones.txt'
 INTO TABLE timeZones
 CHARACTER SET 'UTF8'
-IGNORE 1 LINES
 (timeZoneId, GMT_offset, DST_offset);
 
 LOAD DATA LOCAL INFILE 'dump/countryInfo.txt'
 INTO TABLE countryinfo
 CHARACTER SET 'UTF8'
-IGNORE 50 LINES
-(iso_alpha2, iso_alpha3, iso_numeric, fips_code, name, capital, areaInSqKm, population, continent, tld, currency, currencyName, phone, postalCodeFormat, postalCodeRegex, languages, geonameid, neighbours, equivalentFipsCode);
+(iso_alpha2, iso_alpha3, iso_numeric, fips_code, name, capital, areaInSqKm, population, continent, tld, currency, currencyName, phone, postalCodeFormat, postalCodeRegex, languages, geonameid, neighbors, equivalentFipsCode);
 
 LOAD DATA LOCAL INFILE 'sql/continentCodes.txt'
 INTO TABLE continentCodes
