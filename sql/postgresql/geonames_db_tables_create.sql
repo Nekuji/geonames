@@ -30,7 +30,9 @@ CREATE TABLE :geonames_schema.alternatename (
   isPreferredName boolean DEFAULT NULL,
   isShortName boolean DEFAULT NULL,
   isColloquial boolean DEFAULT NULL,
-  isHistoric boolean DEFAULT NULL
+  isHistoric boolean DEFAULT NULL,
+  "from" varchar(20) DEFAULT NULL,
+  "to" varchar(20) DEFAULT NULL
 );
 ALTER TABLE ONLY :geonames_schema.alternatename ADD CONSTRAINT pk_alternatenameid PRIMARY KEY (alternatenameId);
 CREATE INDEX index_alternatename_on_geonameid ON :geonames_schema.alternatename (geonameid);
@@ -95,7 +97,7 @@ CREATE TABLE :geonames_schema.geoname (
   fclass char(1) DEFAULT NULL,
   fcode varchar(10) DEFAULT NULL,
   country varchar(2) DEFAULT NULL,
-  cc2 varchar(100) DEFAULT NULL,
+  cc2 varchar(200) DEFAULT NULL,
   admin1 varchar(20) DEFAULT NULL,
   admin2 varchar(80) DEFAULT NULL,
   admin3 varchar(20) DEFAULT NULL,
@@ -120,7 +122,7 @@ CREATE INDEX index_geoname_on_population ON :geonames_schema.geoname (population
 CREATE INDEX index_geoname_on_elevation ON :geonames_schema.geoname (elevation);
 CREATE INDEX index_geoname_on_timezone ON :geonames_schema.geoname (timezone);
 CREATE INDEX index_geoname_on_asciiname_fclass ON :geonames_schema.geoname (asciiname, fclass);
-CREATE INDEX index_geoname_on_alternatenames_fclass ON :geonames_schema.geoname (alternatenames,fclass);
+-- CREATE INDEX index_geoname_on_alternatenames_fclass ON :geonames_schema.geoname (alternatenames,fclass);
 
 CREATE TABLE :geonames_schema.hierarchy (
   parentId int DEFAULT NULL,
@@ -138,9 +140,11 @@ CREATE TABLE :geonames_schema.iso_languagecodes (
 );
 
 CREATE TABLE :geonames_schema.timeZones (
+  country varchar(2) DEFAULT NULL,
   timeZoneId varchar(200) DEFAULT NULL,
   GMT_offset numeric(3,1) DEFAULT NULL,
-  DST_offset numeric(3,1) DEFAULT NULL
+  DST_offset numeric(3,1) DEFAULT NULL,
+  RAW_offset numeric(3,1) DEFAULT NULL
 );
 
 CREATE TABLE :geonames_schema.postalCodes (

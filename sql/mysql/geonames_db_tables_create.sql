@@ -1,5 +1,5 @@
 -- DROP DATABASE IF EXISTS geonames; 
--- CREATE DATABASE geonames DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+-- CREATE DATABASE geonames DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- USE geonames;
 
 -- Create syntax for TABLE 'admin1Codes'
@@ -12,7 +12,7 @@ CREATE TABLE `admin1Codes` (
   KEY `name` (`name`(20)),
   KEY `nameAscii` (`nameAscii`(20)),
   KEY `geonameid` (`geonameid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Create syntax for TABLE 'admin2Codes'
 CREATE TABLE `admin2Codes` (
@@ -24,7 +24,7 @@ CREATE TABLE `admin2Codes` (
   KEY `name` (`name`(80)),
   KEY `nameAscii` (`nameAscii`(80)),
   KEY `geonameid` (`geonameid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Create syntax for TABLE 'alternatename'
 CREATE TABLE `alternatename` (
@@ -42,7 +42,7 @@ CREATE TABLE `alternatename` (
   KEY `alternateName` (`alternateName`),
   KEY `idx_geoname_alternatename_alternateName` (`alternateName`) USING BTREE,
   KEY `index_3` (`geonameid`,`isoLanguage`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Create syntax for TABLE 'continentCodes'
 CREATE TABLE `continentCodes` (
@@ -52,7 +52,7 @@ CREATE TABLE `continentCodes` (
   KEY `code` (`code`),
   KEY `name` (`name`),
   KEY `geonameid` (`geonameid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Create syntax for TABLE 'countryinfo'
 CREATE TABLE `countryinfo` (
@@ -80,7 +80,7 @@ CREATE TABLE `countryinfo` (
   KEY `iso_numeric` (`iso_numeric`),
   KEY `fips_code` (`fips_code`),
   KEY `name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Create syntax for TABLE 'featureCodes'
 CREATE TABLE `featureCodes` (
@@ -89,7 +89,7 @@ CREATE TABLE `featureCodes` (
   `description` text,
   KEY `code` (`code`),
   KEY `name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Create syntax for TABLE 'geoname'
 CREATE TABLE `geoname` (
@@ -102,7 +102,7 @@ CREATE TABLE `geoname` (
   `fclass` char(1) DEFAULT NULL,
   `fcode` varchar(10) DEFAULT NULL,
   `country` varchar(2) DEFAULT NULL,
-  `cc2` varchar(60) DEFAULT NULL,
+  `cc2` varchar(200) DEFAULT NULL,
   `admin1` varchar(20) DEFAULT NULL,
   `admin2` varchar(80) DEFAULT NULL,
   `admin3` varchar(20) DEFAULT NULL,
@@ -129,7 +129,7 @@ CREATE TABLE `geoname` (
   KEY `alternatenames_fclass` (`alternatenames`(255),`fclass`),
   FULLTEXT KEY `idx_fulltext_alternatename` (`alternatenames`),
   FULLTEXT KEY `idx_fulltext_asciiname` (`asciiname`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Create syntax for TABLE 'hierarchy'
 CREATE TABLE `hierarchy` (
@@ -138,7 +138,7 @@ CREATE TABLE `hierarchy` (
   `type` varchar(50) DEFAULT NULL,
   KEY `parentId` (`parentId`),
   KEY `childId` (`childId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Create syntax for TABLE 'iso_languagecodes'
 CREATE TABLE `iso_languagecodes` (
@@ -146,14 +146,14 @@ CREATE TABLE `iso_languagecodes` (
   `iso_639_2` varchar(50) DEFAULT NULL,
   `iso_639_1` varchar(50) DEFAULT NULL,
   `language_name` varchar(200) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Create syntax for TABLE 'timeZones'
 CREATE TABLE `timeZones` (
   `timeZoneId` varchar(200) DEFAULT NULL,
   `GMT_offset` decimal(3,1) DEFAULT NULL,
   `DST_offset` decimal(3,1) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Create syntax for TABLE 'postalCodes'
 CREATE TABLE `postalCodes` (
@@ -177,4 +177,4 @@ CREATE TABLE `postalCodes` (
   KEY `longitude` (`longitude`),
   KEY `admin1_name` (`admin1_name`),
   KEY `admin1_code_2` (`admin1_code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;

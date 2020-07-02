@@ -82,6 +82,9 @@ download_geonames_data() {
 		unzip -j "$ZIP_DIR/$dump" -d $ZIP_DIR
 		echo "Deleting [$dump] in [$ZIP_DIR]"
 		rm "$ZIP_DIR/$dump"
+
+		# Escape inverted slashes
+		sed -i 's~\\~\\\\~g' "$ZIP_DIR/${dump%.zip}.txt"
 	done
 }
 
@@ -144,11 +147,12 @@ db_create() {
 #######################################
 db_tables_create() {
 	echo "Creating tables for database [$DB_NAME] in [$DB_MANAGEMENT_SYS]..."
+	FILEPATH=$SQL_DIR/$DB_MANAGEMENT_SYS/geonames_db_tables_create.sql
 	if [[ "$DB_MANAGEMENT_SYS" == "mysql" ]]; then
 		mysql -h $DB_HOST -P $DB_PORT -u$DB_USERNAME -p$DB_PASSWORD -Bse "USE $DB_NAME;"
-		mysql -h $DB_HOST -P $DB_PORT -u$DB_USERNAME -p$DB_PASSWORD $DB_NAME <$SQL_DIR/$DB_MANAGEMENT_SYS/geonames_db_tables_create.sql
+		mysql -h $DB_HOST -P $DB_PORT -u$DB_USERNAME -p$DB_PASSWORD $DB_NAME <$FILEPATH
 	else
-		psql -h $DB_HOST -p $DB_PORT -U $DB_USERNAME -d $DB_NAME -v geonames_schema=$DB_SCHEMA -f $SQL_DIR/$DB_MANAGEMENT_SYS/geonames_db_tables_create.sql
+		psql -h $DB_HOST -p $DB_PORT -U $DB_USERNAME -d $DB_NAME -v geonames_schema=$DB_SCHEMA -f $FILEPATH
 	fi
 }
 
@@ -174,9 +178,8 @@ db_import_dumps() {
 		COPYFILE="$SQL_DIR/$DB_MANAGEMENT_SYS/import_geonames.sql"
 		cp $FILEPATH $COPYFILE
 		SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-		echo $SCRIPTPATH
-		sed -i "s~:geonames_path~$SCRIPTPATH~g" $COPYFILE
-		psql -h $DB_HOST -p $DB_PORT -U $DB_USERNAME -d $DB_NAME -v geonames_schema=$DB_SCHEMA -v geonames_path=$SCRIPTPATH -f "$COPYFILE"
+		sed -i "s~:geonames_path~$SCRIPTPATH~g; s~:geonames_schema~$DB_SCHEMA~g" $COPYFILE
+		psql -h $DB_HOST -p $DB_PORT -U $DB_USERNAME -d $DB_NAME -v geonames_path=$SCRIPTPATH -f $COPYFILE
 		rm $COPYFILE
 	fi
 }
@@ -217,10 +220,11 @@ db_drop() {
 #######################################
 db_truncate() {
 	echo "Truncating [$DB_NAME] database in [$DB_MANAGEMENT_SYS]..."
+	FILEPATH=$SQL_DIR/$DB_MANAGEMENT_SYS/geonames_db_truncate.sql
 	if [[ "$DB_MANAGEMENT_SYS" == "mysql" ]]; then
-		mysql -h $DB_HOST -P $DB_PORT -u$DB_USERNAME -p$DB_PASSWORD $DB_NAME <$SQL_DIR/$DB_MANAGEMENT_SYS/geonames_db_truncate.sql
+		mysql -h $DB_HOST -P $DB_PORT -u$DB_USERNAME -p$DB_PASSWORD $DB_NAME <$FILEPATH
 	else
-		psql -h $DB_HOST -p $DB_PORT -U $DB_USERNAME -d $DB_NAME -v geonames_schema=$DB_SCHEMA -f $SQL_DIR/$DB_MANAGEMENT_SYS/geonames_db_truncate.sql
+		psql -h $DB_HOST -p $DB_PORT -U $DB_USERNAME -d $DB_NAME -v geonames_schema=$DB_SCHEMA -f $FILEPATH
 	fi
 }
 
@@ -367,6 +371,7 @@ all)
 	db_create
 	db_tables_create
 	db_import_dumps
+	download_geonames_data_delete
 	;;
 
 *)
