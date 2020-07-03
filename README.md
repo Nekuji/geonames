@@ -54,7 +54,7 @@ When no options to connect to MySQL are specified, it will use the default setti
 
 To execute with PostgreSQL, just change the value in -m option and provide the database and schema:
 ```shell
-./geonames.sh -a all -m postgresql -u root -w root -h localhost -p 3306 -d postgres -s geonames
+./geonames.sh -a all -m postgresql -u root -h localhost -p 3306 -d postgres -s geonames
 ```
 
 You can visit anytime the help section to know all the commands and actions available:
