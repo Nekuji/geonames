@@ -240,7 +240,7 @@ display_help() {
 	echo "  -a                 : executes an action with the provided argument. Check the action arguments below."
 	echo "  -m                 : set the database management system. Only the MySQL and PostgreSQL are available."
 	echo "  -u                 : database user for login."
-	echo "                  : database password for login."
+	echo "  -w                 : database password for login."
 	echo "  -h                 : database hostname."
 	echo "  -p                 : database port."
 	echo "  -d                 : database name."
@@ -248,7 +248,7 @@ display_help() {
 	echo
 	echo "Action arguments:"
 	echo "  all                : Performs the following actions respectively:"
-	echo "                       download-data, db-create, tables-create and db-import"
+	echo "                       download-data, db-create, tables-create, db-import and download-delete"
 	echo "  db-create          : Drop the geonames database and create a new one"
 	echo "  db-drop            : Drop the geonames database"
 	echo "  db-import          : Import GeoNames data dumps into the current database"

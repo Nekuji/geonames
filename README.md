@@ -36,16 +36,16 @@ The script can perform the following options:
 
 Those are the actions available:
 
-| Action          | Description                                                                                        |
-|-----------------|----------------------------------------------------------------------------------------------------|
-| all             | Performs the following actions respectively: download-data, db-create, tables-create and db-import |
-| db-create       | Drop the geonames database and create a new one                                                    |
-| db-drop         | Drop the geonames database                                                                         |
-| db-import       | Import GeoNames data dumps into the current database                                               |
-| db-truncate     | Truncate all GeoNames tables from the current database                                             |
-| download-data   | Download the GeoNames data dumps                                                                   |
-| download-delete | Delete the folders with the GeoNames data dump                                                     |
-| tables-create   | Create the GeoNames tables                                                                         |
+| Action          | Description                                                                                                         |
+|-----------------|---------------------------------------------------------------------------------------------------------------------|
+| all             | Performs the following actions respectively: download-data, db-create, tables-create, db-import and download-delete |
+| db-create       | Drop the geonames database and create a new one                                                                     |
+| db-drop         | Drop the geonames database                                                                                          |
+| db-import       | Import GeoNames data dumps into the current database                                                                |
+| db-truncate     | Truncate all GeoNames tables from the current database                                                              |
+| download-data   | Download the GeoNames data dumps                                                                                    |
+| download-delete | Delete the folders with the GeoNames data dump                                                                      |
+| tables-create   | Create the GeoNames tables                                                                                          |
 
 When no options to connect to MySQL are specified, it will use the default settings:
 ```shell
