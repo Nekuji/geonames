@@ -1,3 +1,4 @@
 dump/
 zip/
 .idea
+sql/postgresql/import_geonames.sql
