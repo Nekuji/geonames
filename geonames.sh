@@ -121,12 +121,13 @@ download_geonames_data_delete() {
 #   None
 #######################################
 db_create() {
-	echo "Creating database [$DB_NAME] in [$DB_MANAGEMENT_SYS]..."
 	if [[ "$DB_MANAGEMENT_SYS" == "mysql" ]]; then
+		echo "Creating database [$DB_NAME] in [$DB_MANAGEMENT_SYS]..."
 		mysql -h $DB_HOST -P $DB_PORT -u$DB_USERNAME -p$DB_PASSWORD -Bse "DROP DATABASE IF EXISTS $DB_NAME;"
 		mysql -h $DB_HOST -P $DB_PORT -u$DB_USERNAME -p$DB_PASSWORD -Bse "CREATE DATABASE $DB_NAME DEFAULT CHARACTER SET utf8;"
 		mysql -h $DB_HOST -P $DB_PORT -u$DB_USERNAME -p$DB_PASSWORD -Bse "USE $DB_NAME;"
 	else
+		echo "Creating schema [$DB_SCHEMA] into database [$DB_NAME] in [$DB_MANAGEMENT_SYS]..."
 		psql -h $DB_HOST -p $DB_PORT -U $DB_USERNAME -d $DB_NAME -c "DROP SCHEMA IF EXISTS $DB_SCHEMA CASCADE;"
 		psql -h $DB_HOST -p $DB_PORT -U $DB_USERNAME -d $DB_NAME -c "CREATE SCHEMA $DB_SCHEMA;"
 	fi
@@ -146,12 +147,13 @@ db_create() {
 #   None
 #######################################
 db_tables_create() {
-	echo "Creating tables for database [$DB_NAME] in [$DB_MANAGEMENT_SYS]..."
 	FILEPATH=$SQL_DIR/$DB_MANAGEMENT_SYS/geonames_db_tables_create.sql
 	if [[ "$DB_MANAGEMENT_SYS" == "mysql" ]]; then
+		echo "Creating tables for database [$DB_NAME] in [$DB_MANAGEMENT_SYS]..."
 		mysql -h $DB_HOST -P $DB_PORT -u$DB_USERNAME -p$DB_PASSWORD -Bse "USE $DB_NAME;"
 		mysql -h $DB_HOST -P $DB_PORT -u$DB_USERNAME -p$DB_PASSWORD $DB_NAME <$FILEPATH
 	else
+		echo "Creating tables in the schema [$DB_SCHEMA] for database [$DB_NAME] in [$DB_MANAGEMENT_SYS]..."
 		psql -h $DB_HOST -p $DB_PORT -U $DB_USERNAME -d $DB_NAME -v geonames_schema=$DB_SCHEMA -f $FILEPATH
 	fi
 }
@@ -170,11 +172,12 @@ db_tables_create() {
 #   None
 #######################################
 db_import_dumps() {
-	echo "Importing GeoNames dumps into database [$DB_NAME] in [$DB_MANAGEMENT_SYS]. Please wait a moment..."
 	FILEPATH=$SQL_DIR/$DB_MANAGEMENT_SYS/geonames_db_import_dumps.sql
 	if [[ "$DB_MANAGEMENT_SYS" == "mysql" ]]; then
+		echo "Importing GeoNames dumps into database [$DB_NAME] in [$DB_MANAGEMENT_SYS]. Please wait a moment..."
 		mysql -h $DB_HOST -P $DB_PORT -u$DB_USERNAME -p$DB_PASSWORD --local-infile=1 $DB_NAME <$FILEPATH
 	else
+		echo "Importing GeoNames dumps into schema [$DB_SCHEMA] from database [$DB_NAME] in [$DB_MANAGEMENT_SYS]. Please wait a moment..."
 		COPYFILE="$SQL_DIR/$DB_MANAGEMENT_SYS/import_geonames.sql"
 		cp $FILEPATH $COPYFILE
 		SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
@@ -197,10 +200,11 @@ db_import_dumps() {
 #   None
 #######################################
 db_drop() {
-	echo "Dropping [$DB_NAME] database in [$DB_MANAGEMENT_SYS]..."
 	if [[ "$DB_MANAGEMENT_SYS" == "mysql" ]]; then
+		echo "Dropping [$DB_NAME] database in [$DB_MANAGEMENT_SYS]..."
 		mysql -h $DB_HOST -P $DB_PORT -u$DB_USERNAME -p$DB_PASSWORD -Bse "DROP DATABASE IF EXISTS $DB_NAME;"
 	else
+		echo "Dropping schema [$DB_SCHEMA] from database [$DB_NAME] in [$DB_MANAGEMENT_SYS]..."
 		psql -h $DB_HOST -p $DB_PORT -U $DB_USERNAME -d $DB_NAME -c "DROP SCHEMA IF EXISTS $DB_SCHEMA CASCADE;"
 	fi
 }
@@ -219,11 +223,12 @@ db_drop() {
 #   None
 #######################################
 db_truncate() {
-	echo "Truncating [$DB_NAME] database in [$DB_MANAGEMENT_SYS]..."
 	FILEPATH=$SQL_DIR/$DB_MANAGEMENT_SYS/geonames_db_truncate.sql
 	if [[ "$DB_MANAGEMENT_SYS" == "mysql" ]]; then
+		echo "Truncating [$DB_NAME] database in [$DB_MANAGEMENT_SYS]..."
 		mysql -h $DB_HOST -P $DB_PORT -u$DB_USERNAME -p$DB_PASSWORD $DB_NAME <$FILEPATH
 	else
+		echo "Truncating schema [$DB_SCHEMA] from database [$DB_NAME] in [$DB_MANAGEMENT_SYS]..."
 		psql -h $DB_HOST -p $DB_PORT -U $DB_USERNAME -d $DB_NAME -v geonames_schema=$DB_SCHEMA -f $FILEPATH
 	fi
 }
