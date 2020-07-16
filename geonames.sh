@@ -153,7 +153,7 @@ db_tables_create() {
 		mysql -h $DB_HOST -P $DB_PORT -u$DB_USERNAME -p$DB_PASSWORD -Bse "USE $DB_NAME;"
 		mysql -h $DB_HOST -P $DB_PORT -u$DB_USERNAME -p$DB_PASSWORD $DB_NAME <$FILEPATH
 	else
-		echo "Creating tables in the schema [$DB_SCHEMA] for database [$DB_NAME] in [$DB_MANAGEMENT_SYS]..."
+		echo "Creating tables into schema [$DB_SCHEMA] of database [$DB_NAME] in [$DB_MANAGEMENT_SYS]..."
 		psql -h $DB_HOST -p $DB_PORT -U $DB_USERNAME -d $DB_NAME -v geonames_schema=$DB_SCHEMA -f $FILEPATH
 	fi
 }
@@ -386,7 +386,7 @@ all)
 	;;
 esac
 
-if [ $? == 0 ]; then
+if [[ $? == 0 ]]; then
 	echo "[OK]"
 else
 	echo "[FAILED]"
